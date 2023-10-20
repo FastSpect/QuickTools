@@ -1,5 +1,8 @@
 import base64
+import json
 import sys
+
+import jwt
 
 
 def encode(data):
@@ -18,6 +21,14 @@ def decode(data):
         print(f"Error decoding: {e}")
 
 
+def decode_jwt(data):
+    try:
+        decoded = jwt.decode(data, options={"verify_signature": False})
+        print("Decoded:", json.dumps(decoded, indent=4))
+    except Exception as e:
+        print(f"Error decoding: {e}")
+
+
 def main():
     if len(sys.argv) < 3:
         print("Usage:")
@@ -32,6 +43,8 @@ def main():
         encode(data)
     elif action == "-d":
         decode(data)
+    elif action == "-jwt":
+        decode_jwt(data)
     else:
         print(f"Unknown action: {action}")
         sys.exit(1)
