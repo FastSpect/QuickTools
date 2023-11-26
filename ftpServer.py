@@ -1,27 +1,31 @@
-from pyftpdlib.authorizers import DummyAuthorizer
-from pyftpdlib.handlers import FTPHandler
-from pyftpdlib.servers import FTPServer
+import os
+
+from twisted.cred.checkers import AllowAnonymousAccess, FilePasswordDB
+from twisted.cred.portal import Portal
+from twisted.internet import reactor
+from twisted.protocols.ftp import FTPFactory, FTPRealm
 
 
 def start_ftp_server():
-    # Create an authorizer
-    authorizer = DummyAuthorizer()
+    host = "127.0.0.1"
+    port = 21
 
-    # Add a new user with a username and password
-    authorizer.add_user("username", "password",
-                        "/path/to/ftp/folder", perm="elradfmw")
+    print(f"Starting FTP server on {host}:{port}...")
 
-    # Create an FTP handler and associate the authorizer
-    handler = FTPHandler
-    handler.authorizer = authorizer
+    portal = Portal(
+        FTPRealm(os.path.dirname(os.path.realpath(__file__))),
+        [
+            AllowAnonymousAccess(),
+        ],
+    )
+    factory = FTPFactory(portal)
+    factory.passivePortRange = range(30000, 31000)
+    reactor.listenTCP(port, factory, interface=host)
 
-    # Create an FTP server with the handler
-    server = FTPServer(("0.0.0.0", 21), handler)
-
-    print("FTP server started on 0.0.0.0:21...")
-
-    # Start the FTP server
-    server.serve_forever()
+    try:
+        reactor.run()
+    except KeyboardInterrupt:
+        raise
 
 
 if __name__ == "__main__":
