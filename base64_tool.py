@@ -32,8 +32,9 @@ def decode_jwt(data):
 def main():
     if len(sys.argv) < 3:
         print("Usage:")
-        print("  python base64_tool.py -e <data>")
-        print("  python base64_tool.py -d <data>")
+        print("  base64 -e <data>")
+        print("  base64 -d <data>")
+        print("  base64 -jwt <data>")
         sys.exit(1)
 
     action = sys.argv[1]
